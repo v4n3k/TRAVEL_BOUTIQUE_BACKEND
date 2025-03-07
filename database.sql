@@ -2,6 +2,7 @@ CREATE TABLE "excursions" (
   id SERIAL PRIMARY KEY,
   "imgSrc" VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
+  city VARCHAR(255) NOT NULL,
   info VARCHAR(1023) NOT NULL,
   "personsAmount" INT NOT NULL,
   "accompanistsAmount" INT NOT NULL, 
@@ -15,3 +16,6 @@ CREATE TABLE "excursionEvents" (
   time TIME WITHOUT TIME ZONE NOT NULL,
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
+
+DELETE FROM "excursionEvents";
+DELETE FROM "excursions";

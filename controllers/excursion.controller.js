@@ -1,51 +1,8 @@
 import { db } from '../db.js';
+import { getImageUrl } from '../utils/utils.js';
 
 class ExcursionController {
-	async createNewExcursion(req, res) {
-		try {
-			const {
-				name,
-				info,
-				personsAmount,
-				accompanistsAmount,
-				price
-			} = req.body;
-
-			if (
-				!name ||
-				!info ||
-				typeof personsAmount !== 'number' ||
-				typeof accompanistsAmount !== 'number' ||
-				typeof price !== 'number'
-			) {
-				return res.status(400).json({ error: 'Missing required fields' });
-			}
-
-			let imageUrl = null;
-
-			if (req.files && req.files.length > 0) {
-				const imgFile = req.files[0];
-				imageUrl = `${req.protocol}://${req.get('host')}/uploads/${imgFile.filename}`;
-			}
-
-			const newExcursionResult = await db.query(
-				`INSERT INTO excursions 
-					(name, "uploadedImage", info, "personsAmount", "accompanistsAmount", price) 
-					VALUES ($1, $2, $3, $4, $5, $6) 
-				RETURNING *`,
-				[name, imageUrl, info, personsAmount, accompanistsAmount, price]
-			);
-
-			const newExcursion = newExcursionResult.rows[0];
-
-			res.json(newExcursion.rows[0]);
-
-		} catch (err) {
-			res.status(500).json({ error: err.message });
-		}
-	}
-
-	async getExcursions(req, res) {
+	async getExcursions(_, res) {
 		try {
 			const excursionsResult = await db.query('SELECT * FROM excursions');
 
@@ -64,6 +21,97 @@ class ExcursionController {
 			res.status(500).json({ error: err.message });
 		}
 	}
+
+	async getExcursionById(req, res) {
+		try {
+			const id = parseInt(req.params.id);
+
+			if (isNaN(id)) {
+				return res.status(400).json({ error: 'Invalid excursion ID' });
+			}
+
+			const excursionResult = await db.query(
+				'SELECT * FROM excursions WHERE id = $1',
+				[id]
+			);
+
+			const excursion = excursionResult.rows[0];
+
+			if (!excursion) {
+				return res.status(404).json({ error: 'Excursion not found' });
+			}
+
+			const excursionEventsResult = await db.query(
+				'SELECT * FROM "excursionEvents" WHERE "excursionId" = $1',
+				[id]
+			);
+
+			excursion.excursionEvents = excursionEventsResult.rows;
+
+			res.json(excursion);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
+	createNewExcursion = async (req, res) => {
+		try {
+			const {
+				name,
+				city,
+				info,
+				personsAmount,
+				accompanistsAmount,
+				price,
+				excursionEvents
+			} = req.body;
+
+			if (!name || !city || !info) {
+				return res.status(400).json({ error: 'Missing required fields' });
+			}
+
+			const imageUrl = getImageUrl(req, res);
+
+			const newExcursionResult = await db.query(
+				`INSERT INTO excursions 
+				 (name, city, "imgSrc", info, "personsAmount", "accompanistsAmount", price) 
+				 VALUES ($1, $2, $3, $4, $5, $6, $7) 
+				RETURNING *`,
+				[name, city, imageUrl, info, personsAmount, accompanistsAmount, price]
+			);
+
+			const parsedExcursionEvents = JSON.parse(excursionEvents);
+
+			if (!Array.isArray(parsedExcursionEvents)) {
+				return res.status(400).json({ error: 'excursionEvents must be an array' });
+			}
+
+			for (const excursionEvent of parsedExcursionEvents) {
+				if (
+					!excursionEvent
+					|| typeof excursionEvent.name !== 'string'
+					|| !excursionEvent.name.trim()
+				) {
+					console.warn('Skipping excursionEvent with missing or invalid name:', excursionEvent);
+					continue;
+				}
+
+				await db.query(
+					`INSERT INTO "excursionEvents" ("excursionId", name, time) 
+						 VALUES ($1, $2, $3)`,
+					[newExcursionResult.rows[0].id, excursionEvent.name, excursionEvent.time]
+				);
+			}
+
+			const newExcursion = newExcursionResult.rows[0];
+
+			res.json(newExcursion);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	};
+
+
 }
 
 export default new ExcursionController();

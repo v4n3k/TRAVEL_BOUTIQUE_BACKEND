@@ -48,7 +48,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(cors());
 
-app.use("/api/sign_up", upload.any());
+app.use("/api/excursion", upload.any());
 
 app.use('/api', authRouter);
 app.use('/api', excursionRouter);
