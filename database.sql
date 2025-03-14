@@ -17,5 +17,11 @@ CREATE TABLE "excursionEvents" (
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
 
+CREATE TABLE "category" (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  "imgSrc" VARCHAR(255) NOT NULL
+);
+
 DELETE FROM "excursionEvents";
 DELETE FROM "excursions";

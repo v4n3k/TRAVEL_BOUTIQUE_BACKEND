@@ -8,6 +8,10 @@ class ExcursionController {
 
 			const excursions = excursionsResult.rows;
 
+			if (!excursions) {
+				res.status(404).json({ error: 'Excursions not found' });
+			}
+
 			for (const excursion of excursions) {
 				const eventsResult = await db.query(
 					'SELECT id, name, time FROM "excursionEvents" WHERE "excursionId" = $1',
@@ -42,7 +46,13 @@ class ExcursionController {
 			}
 
 			const excursionEventsResult = await db.query(
-				'SELECT * FROM "excursionEvents" WHERE "excursionId" = $1',
+				`SELECT
+					*,
+					TO_CHAR(time, 'HH24:MI') AS time
+		  	FROM
+					"excursionEvents"
+		  	WHERE
+					"excursionId" = $1`,
 				[id]
 			);
 
@@ -69,6 +79,15 @@ class ExcursionController {
 			if (!name || !city || !info) {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}
+
+			const timeRegExp = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+
+			JSON.parse(excursionEvents).forEach((excursionEvent) => {
+				if (!excursionEvent.name || !excursionEvent.time) {
+					return res.status(400).json({ error: 'Invalid time for excursion event' });
+				}
+			});
+
 
 			const imageUrl = getImageUrl(req, res);
 
@@ -110,8 +129,6 @@ class ExcursionController {
 			res.status(500).json({ error: err.message });
 		}
 	};
-
-
 }
 
 export default new ExcursionController();
