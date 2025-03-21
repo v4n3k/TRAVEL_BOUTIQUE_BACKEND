@@ -17,6 +17,10 @@ const PORT = getDotEnvVar("BACKEND_PORT");
 
 const app = express();
 
+app.use(helmet());
+app.use(express.json());
+app.use(cors());
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -44,9 +48,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.use(helmet());
-app.use(express.json());
-app.use(cors());
 
 app.use("/api/excursion", upload.any());
 
