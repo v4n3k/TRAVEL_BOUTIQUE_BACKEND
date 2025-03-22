@@ -19,7 +19,19 @@ const app = express();
 
 app.use(helmet());
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+	origin: '*',
+	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+	allowedHeaders: [
+		'Content-Type',
+		'Authorization',
+		'Accept',
+		'Origin',
+		'X-Requested-With'
+	],
+	preflightContinue: false,
+	optionsSuccessStatus: 204
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +59,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 
 app.use("/api/excursion", upload.any());
 

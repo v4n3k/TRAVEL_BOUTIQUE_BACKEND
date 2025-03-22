@@ -1,4 +1,4 @@
-CREATE TABLE "excursions" (
+CREATE TABLE IF NOT EXISTS "excursions" (
   id SERIAL PRIMARY KEY,
   "imgSrc" VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "excursions" (
   price INT NOT NULL
 );
 
-CREATE TABLE "excursionEvents" (
+CREATE TABLE IF NOT EXISTS "excursionEvents" (
   id SERIAL PRIMARY KEY,
   "excursionId" INT NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -17,11 +17,8 @@ CREATE TABLE "excursionEvents" (
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
 
-CREATE TABLE "category" (
+CREATE TABLE IF NOT EXISTS "category" (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   "imgSrc" VARCHAR(255) NOT NULL
 );
-
-DELETE FROM "excursionEvents";
-DELETE FROM "excursions";
