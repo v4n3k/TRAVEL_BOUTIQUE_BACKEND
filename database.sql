@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "excursionEvents" (
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
 
-CREATE TABLE IF NOT EXISTS "category" (
+CREATE TABLE IF NOT EXISTS "categories" (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   "imgSrc" VARCHAR(255) NOT NULL

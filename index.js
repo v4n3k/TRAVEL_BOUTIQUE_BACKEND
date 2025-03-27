@@ -1,14 +1,15 @@
-import cors from "cors";
-import { config as dotenvConfig } from "dotenv-esm";
-import express from "express";
+import cors from 'cors';
+import { config as dotenvConfig } from 'dotenv-esm';
+import express from 'express';
 import fs from 'fs/promises';
-import helmet from "helmet";
+import helmet from 'helmet';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
-import { router as authRouter } from "./routes/auth.routes.js";
-import { router as excursionRouter } from "./routes/excursion.routes.js";
+import { router as authRouter } from './routes/auth.routes.js';
+import { router as categoryRouter } from './routes/category.routes.js';
+import { router as excursionRouter } from './routes/excursion.routes.js';
 import { getDotEnvVar } from './utils/utils.js';
 
 dotenvConfig();
@@ -60,10 +61,12 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.use("/api/excursion", upload.any());
+app.use('/api/excursion', upload.any());
+app.use('/api/category', upload.any());
 
 app.use('/api', authRouter);
 app.use('/api', excursionRouter);
+app.use('/api', categoryRouter);
 
 const start = (PORT) => {
 	console.log(`Server is running on port ${PORT}`);

@@ -80,14 +80,11 @@ class ExcursionController {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}
 
-			const timeRegExp = /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
-
 			JSON.parse(excursionEvents).forEach((excursionEvent) => {
 				if (!excursionEvent.name || !excursionEvent.time) {
 					return res.status(400).json({ error: 'Invalid time for excursion event' });
 				}
 			});
-
 
 			const imageUrl = getImageUrl(req, res);
 
