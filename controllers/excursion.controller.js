@@ -64,7 +64,7 @@ class ExcursionController {
 		}
 	}
 
-	createNewExcursion = async (req, res) => {
+	async createNewExcursion(req, res) {
 		try {
 			const {
 				name,
@@ -126,6 +126,157 @@ class ExcursionController {
 			res.status(500).json({ error: err.message });
 		}
 	};
+
+	async updateExcursion(req, res) {
+		try {
+			const id = parseInt(req.params.id);
+
+			if (isNaN(id)) {
+				return res.status(400).json({ error: 'Invalid excursion ID' });
+			}
+
+			const {
+				name,
+				city,
+				info,
+				personsAmount,
+				accompanistsAmount,
+				price,
+				excursionEvents
+			} = req.body;
+
+			const imageUrl = getImageUrl(req, res);
+			const setClauses = [];
+			const values = [];
+			let valueIndex = 1;
+			let hasExcursionUpdateFields = false;
+
+			if (name !== undefined) {
+				setClauses.push(`name = $${valueIndex}`);
+				values.push(name);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (city !== undefined) {
+				setClauses.push(`city = $${valueIndex}`);
+				values.push(city);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (info !== undefined) {
+				setClauses.push(`info = $${valueIndex}`);
+				values.push(info);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (personsAmount !== undefined) {
+				setClauses.push(`"personsAmount" = $${valueIndex}`);
+				values.push(personsAmount);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (accompanistsAmount !== undefined) {
+				setClauses.push(`"accompanistsAmount" = $${valueIndex}`);
+				values.push(accompanistsAmount);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (price !== undefined) {
+				setClauses.push(`price = $${valueIndex}`);
+				values.push(price);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+			if (imageUrl !== undefined) {
+				setClauses.push(`"imgSrc" = $${valueIndex}`);
+				values.push(imageUrl);
+				valueIndex++;
+				hasExcursionUpdateFields = true;
+			}
+
+			if (setClauses.length === 0 && excursionEvents === undefined) {
+				return res.status(400).json({ error: 'No fields to update provided' });
+			}
+
+			let updatedExcursion;
+			if (hasExcursionUpdateFields) {
+				const updateQuery = `
+          UPDATE excursions
+          SET ${setClauses.join(', ')}
+          WHERE id = $${valueIndex}
+          RETURNING *
+        `;
+				values.push(id);
+				const updatedExcursionResult = await db.query(updateQuery, values);
+				updatedExcursion = updatedExcursionResult.rows[0];
+
+				if (!updatedExcursion) {
+					return res.status(404).json({ error: 'Excursion not found' });
+				}
+			} else {
+				const excursionResult = await db.query(
+					'SELECT * FROM excursions WHERE id = $1', [id]
+				);
+				updatedExcursion = excursionResult.rows[0];
+				if (!updatedExcursion) {
+					return res.status(404).json({ error: 'Excursion not found' });
+				}
+			}
+
+			if (excursionEvents !== undefined) {
+				try {
+					JSON.parse(excursionEvents).forEach((excursionEvent) => {
+						if (!excursionEvent.name || !excursionEvent.time) {
+							return res.status(400).json({ error: 'Invalid time for excursion event in update' });
+						}
+					});
+				} catch (error) {
+					return res.status(400).json({ error: 'Invalid excursionEvents format in update, must be valid JSON array' });
+				}
+
+				const parsedExcursionEvents = JSON.parse(excursionEvents);
+				if (!Array.isArray(parsedExcursionEvents)) {
+					return res.status(400).json({ error: 'excursionEvents must be an array for update' });
+				}
+
+				await db.query('DELETE FROM "excursionEvents" WHERE "excursionId" = $1', [id]);
+
+				for (const excursionEvent of parsedExcursionEvents) {
+					if (
+						!excursionEvent
+						|| typeof excursionEvent.name !== 'string'
+						|| !excursionEvent.name.trim()
+					) {
+						console.warn('Skipping excursionEvent with missing or invalid name during update:', excursionEvent);
+						continue;
+					}
+
+					await db.query(
+						`INSERT INTO "excursionEvents" ("excursionId", name, time)
+              VALUES ($1, $2, $3)`,
+						[id, excursionEvent.name, excursionEvent.time]
+					);
+				}
+			}
+
+			const excursionEventsResult = await db.query(
+				`SELECT
+          *,
+          TO_CHAR(time, 'HH24:MI') AS time
+          FROM
+          "excursionEvents"
+          WHERE
+          "excursionId" = $1`,
+				[id]
+			);
+
+			updatedExcursion.excursionEvents = excursionEventsResult.rows;
+			return res.json(updatedExcursion);
+
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
 }
 
 export default new ExcursionController();
