@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { db } from '../db.js';
 import { getImageUrl } from '../utils/utils.js';
 
@@ -187,7 +190,7 @@ class ExcursionController {
 				valueIndex++;
 				hasExcursionUpdateFields = true;
 			}
-			if (imageUrl !== undefined) {
+			if (imageUrl) {
 				setClauses.push(`"imgSrc" = $${valueIndex}`);
 				values.push(imageUrl);
 				valueIndex++;
@@ -274,6 +277,52 @@ class ExcursionController {
 			return res.json(updatedExcursion);
 
 		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
+	async deleteExcursion(req, res) {
+		try {
+			const id = parseInt(req.params.id);
+
+			if (isNaN(id)) {
+				return res.status(400).json({ error: 'Invalid excursion ID' });
+			}
+
+			await db.query('DELETE FROM "excursionEvents" WHERE "excursionId" = $1', [id]);
+
+			const deleteResult = await db.query('DELETE FROM excursions WHERE id = $1 RETURNING *', [id]);
+
+			if (deleteResult.rows.length === 0) {
+				return res.status(404).json({ error: 'Excursion not found' });
+			}
+
+			const deletedExcursion = deleteResult.rows[0];
+			const imageUrl = deletedExcursion.imgSrc;
+
+			if (imageUrl) {
+				const filename = path.basename(imageUrl);
+
+				const __filename = fileURLToPath(import.meta.url);
+				const __dirname = path.dirname(__filename);
+
+				const imagePath = path.join(__dirname, '../uploads', filename);
+
+				if (fs.existsSync(imagePath)) {
+					try {
+						fs.unlinkSync(imagePath);
+						console.log(`Deleted image: ${imagePath}`);
+					} catch (unlinkError) {
+						console.error(`Error deleting image: ${imagePath}`, unlinkError);
+					}
+				} else {
+					console.warn(`Image file not found: ${imagePath}`);
+				}
+			}
+
+			res.json({ message: 'Excursion deleted successfully', deletedExcursion: deleteResult.rows[0] });
+		} catch (err) {
+			console.error(err);
 			res.status(500).json({ error: err.message });
 		}
 	}
