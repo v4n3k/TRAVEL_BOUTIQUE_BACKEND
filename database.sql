@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS "excursions" (
   info VARCHAR(1023) NOT NULL,
   "personsAmount" INT NOT NULL,
   "accompanistsAmount" INT NOT NULL, 
-  price INT NOT NULL
+  price INT NOT NULL,
+  key VARCHAR(15)
 );
 
 CREATE TABLE IF NOT EXISTS "excursionEvents" (

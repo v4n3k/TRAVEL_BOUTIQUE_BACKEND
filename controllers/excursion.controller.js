@@ -274,7 +274,7 @@ class ExcursionController {
 			);
 
 			updatedExcursion.excursionEvents = excursionEventsResult.rows;
-			return res.json(updatedExcursion);
+			return res.status(404).json(updatedExcursion);
 
 		} catch (err) {
 			res.status(500).json({ error: err.message });
@@ -322,7 +322,32 @@ class ExcursionController {
 
 			res.json({ message: 'Excursion deleted successfully', deletedExcursion: deleteResult.rows[0] });
 		} catch (err) {
-			console.error(err);
+
+			res.status(500).json({ error: err.message });
+		}
+	}
+
+	async generateKey(req, res) {
+		try {
+			const id = req.params.id;
+
+			let key;
+			let isKeyUnique = false;
+
+			while (!isKeyUnique) {
+				key = Array.from({ length: 10 }, () => String(Math.floor(Math.random() * 10))).join('');
+
+				const result = await db.query('SELECT id FROM excursions WHERE key = $1', [key]);
+
+				if (result.rows.length === 0) {
+					isKeyUnique = true;
+				}
+			}
+
+			await db.query('UPDATE excursions SET key = $1 WHERE id = $2', [key, id]);
+
+			res.json(key);
+		} catch (err) {
 			res.status(500).json({ error: err.message });
 		}
 	}
