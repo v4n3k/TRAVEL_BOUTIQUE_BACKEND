@@ -6,8 +6,6 @@ class CategoryController {
 		try {
 			const { name } = req.body;
 
-			console.log(name);
-
 			if (!name) {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}

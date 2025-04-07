@@ -1,3 +1,4 @@
+import pkg from 'cookie-parser';
 import cors from 'cors';
 import { config as dotenvConfig } from 'dotenv-esm';
 import express from 'express';
@@ -14,14 +15,17 @@ import { getDotEnvVar } from './utils/utils.js';
 
 dotenvConfig();
 
+const cookieParse = pkg;
+
 const PORT = getDotEnvVar("BACKEND_PORT");
 
 const app = express();
 
 app.use(helmet());
 app.use(express.json());
+app.use(cookieParse());
 app.use(cors({
-	origin: '*',
+	origin: 'http://localhost:5173',
 	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
 	allowedHeaders: [
 		'Content-Type',
@@ -30,6 +34,7 @@ app.use(cors({
 		'Origin',
 		'X-Requested-With'
 	],
+	credentials: true,
 	preflightContinue: false,
 	optionsSuccessStatus: 204
 }));

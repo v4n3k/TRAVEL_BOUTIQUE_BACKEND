@@ -274,8 +274,8 @@ class ExcursionController {
 			);
 
 			updatedExcursion.excursionEvents = excursionEventsResult.rows;
-			return res.status(404).json(updatedExcursion);
 
+			return res.json(updatedExcursion);
 		} catch (err) {
 			res.status(500).json({ error: err.message });
 		}
