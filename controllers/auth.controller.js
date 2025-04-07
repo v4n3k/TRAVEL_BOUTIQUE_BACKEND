@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { config as dotenvConfig } from 'dotenv-esm';
 import jwt from 'jsonwebtoken';
 import { db } from '../db.js';
-import { getDotEnvVar } from '../utils/utils.js';
+import { getDotEnvVar, validateAuthToken } from '../utils/utils.js';
 
 dotenvConfig();
 
@@ -77,6 +77,8 @@ class AuthController {
 
   async signOut(req, res) {
     try {
+      validateAuthToken(req, res);
+
       res.cookie('authToken', '', {
         httpOnly: true,
         secure: true,
@@ -111,7 +113,7 @@ class AuthController {
       }
 
       try {
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SECRET, (err) => {
           if (err) {
             return res.status(401).json({ isAuth: false, error: 'Invalid or expired token', message: err.message });
           } else {

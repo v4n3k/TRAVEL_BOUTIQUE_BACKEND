@@ -74,7 +74,7 @@ app.use('/api', excursionRouter);
 app.use('/api', categoryRouter);
 
 const start = (PORT) => {
-	console.log(`Server is running on port ${PORT}`);
+	console.log(`Server is running on port ${PORT} in ${getDotEnvVar('NODE_ENV')} mode`);
 };
 
 app.listen(PORT, start(PORT)); 

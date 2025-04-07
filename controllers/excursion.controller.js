@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { db } from '../db.js';
-import { getImageUrl } from '../utils/utils.js';
+import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 
 class ExcursionController {
 	async getExcursions(_, res) {
@@ -69,6 +69,8 @@ class ExcursionController {
 
 	async createNewExcursion(req, res) {
 		try {
+			validateAuthToken(req, res);
+
 			const {
 				name,
 				city,
@@ -132,6 +134,8 @@ class ExcursionController {
 
 	async updateExcursion(req, res) {
 		try {
+			validateAuthToken(req, res);
+
 			const id = parseInt(req.params.id);
 
 			if (isNaN(id)) {
@@ -283,6 +287,8 @@ class ExcursionController {
 
 	async deleteExcursion(req, res) {
 		try {
+			validateAuthToken(req, res);
+
 			const id = parseInt(req.params.id);
 
 			if (isNaN(id)) {
@@ -329,6 +335,8 @@ class ExcursionController {
 
 	async generateKey(req, res) {
 		try {
+			validateAuthToken(req, res);
+
 			const id = req.params.id;
 
 			let key;

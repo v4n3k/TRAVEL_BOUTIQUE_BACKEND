@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 export const getDotEnvVar = (varName) => {
 	const varValue = process.env[varName];
 
@@ -25,4 +27,18 @@ export const getImageUrl = (req, res) => {
 	} catch (err) {
 		res.status(500).json({ error: err.message });
 	}
+};
+
+export const validateAuthToken = (req, res) => {
+	const token = req.cookies.authToken;
+
+	if (!token) {
+		return res.status(401).json({ error: 'Authentication required' });
+	}
+
+	jwt.verify(token, getDotEnvVar("JWT_SECRET"), (err) => {
+		if (err) {
+			return res.status(403).json({ error: 'Invalid token' });
+		}
+	});
 };

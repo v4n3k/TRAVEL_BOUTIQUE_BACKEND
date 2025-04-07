@@ -1,9 +1,11 @@
 import { db } from '../db.js';
-import { getImageUrl } from '../utils/utils.js';
+import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 
 class CategoryController {
 	async createNewCategory(req, res) {
 		try {
+			validateAuthToken(req, res);
+
 			const { name } = req.body;
 
 			if (!name) {
