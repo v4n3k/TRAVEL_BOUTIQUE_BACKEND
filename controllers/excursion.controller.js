@@ -67,13 +67,57 @@ class ExcursionController {
 		}
 	}
 
+	async getExcursionsByCategoryName(req, res) {
+		try {
+			const categoryName = req.params.categoryName;
+
+			if (!categoryName) {
+				return res.status(400).json({ error: 'Category name is required' });
+			}
+
+			const excursionsResult = await db.query(
+				'SELECT * FROM excursions WHERE "categoryName" = $1',
+				[categoryName]
+			);
+
+			const excursions = excursionsResult.rows;
+
+			if (!excursions || excursions.length === 0) {
+				return res
+					.status(404)
+					.json({ error: 'No excursions found for this category' });
+			}
+
+			const excursionsWithEvents = await Promise.all(
+				excursions.map(async (excursion) => {
+					const excursionEventsResult = await db.query(
+						`SELECT
+						 *,
+						 TO_CHAR(time, 'HH24:MI') AS time
+						 FROM
+						 "excursionEvents"
+						 WHERE
+						 "excursionId" = $1`,
+						[excursion.id]
+					);
+					excursion.excursionEvents = excursionEventsResult.rows;
+					return excursion;
+				})
+			);
+
+			res.json(excursionsWithEvents);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
 	async createNewExcursion(req, res) {
 		try {
-			validateAuthToken(req, res);
+			validateAuthToken(req);
 
 			const {
 				name,
-				city,
+				categoryName,
 				info,
 				personsAmount,
 				accompanistsAmount,
@@ -81,7 +125,7 @@ class ExcursionController {
 				excursionEvents
 			} = req.body;
 
-			if (!name || !city || !info) {
+			if (!name || !categoryName || !info) {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}
 
@@ -95,10 +139,10 @@ class ExcursionController {
 
 			const newExcursionResult = await db.query(
 				`INSERT INTO excursions 
-				 (name, city, "imgSrc", info, "personsAmount", "accompanistsAmount", price) 
+				 (name, "categoryName", "imgSrc", info, "personsAmount", "accompanistsAmount", price) 
 				 VALUES ($1, $2, $3, $4, $5, $6, $7) 
 				RETURNING *`,
-				[name, city, imageUrl, info, personsAmount, accompanistsAmount, price]
+				[name, categoryName, imageUrl, info, personsAmount, accompanistsAmount, price]
 			);
 
 			const parsedExcursionEvents = JSON.parse(excursionEvents);
@@ -134,7 +178,7 @@ class ExcursionController {
 
 	async updateExcursion(req, res) {
 		try {
-			validateAuthToken(req, res);
+			validateAuthToken(req);
 
 			const id = parseInt(req.params.id);
 
@@ -144,7 +188,7 @@ class ExcursionController {
 
 			const {
 				name,
-				city,
+				categoryName,
 				info,
 				personsAmount,
 				accompanistsAmount,
@@ -164,9 +208,9 @@ class ExcursionController {
 				valueIndex++;
 				hasExcursionUpdateFields = true;
 			}
-			if (city !== undefined) {
-				setClauses.push(`city = $${valueIndex}`);
-				values.push(city);
+			if (categoryName !== undefined) {
+				setClauses.push(`categoryName = $${valueIndex}`);
+				values.push(categoryName);
 				valueIndex++;
 				hasExcursionUpdateFields = true;
 			}
@@ -287,7 +331,7 @@ class ExcursionController {
 
 	async deleteExcursion(req, res) {
 		try {
-			validateAuthToken(req, res);
+			validateAuthToken(req);
 
 			const id = parseInt(req.params.id);
 
@@ -328,14 +372,13 @@ class ExcursionController {
 
 			res.json({ message: 'Excursion deleted successfully', deletedExcursion: deleteResult.rows[0] });
 		} catch (err) {
-
 			res.status(500).json({ error: err.message });
 		}
 	}
 
 	async generateKey(req, res) {
 		try {
-			validateAuthToken(req, res);
+			validateAuthToken(req);
 
 			const id = req.params.id;
 

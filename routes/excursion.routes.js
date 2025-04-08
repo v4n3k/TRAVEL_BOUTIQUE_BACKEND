@@ -5,6 +5,7 @@ export const router = express.Router();
 
 router.get('/excursions', ExcursionController.getExcursions);
 router.get('/excursion/:id', ExcursionController.getExcursionById);
+router.get('/excursions/:categoryName', ExcursionController.getExcursionsByCategoryName);
 router.post('/excursion', ExcursionController.createNewExcursion);
 router.patch('/excursion/:id', ExcursionController.updateExcursion);
 router.delete('/excursion/:id', ExcursionController.deleteExcursion);

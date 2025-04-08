@@ -77,7 +77,7 @@ class AuthController {
 
   async signOut(req, res) {
     try {
-      validateAuthToken(req, res);
+      validateAuthToken(req);
 
       res.cookie('authToken', '', {
         httpOnly: true,

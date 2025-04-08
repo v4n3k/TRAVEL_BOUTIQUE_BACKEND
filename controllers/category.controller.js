@@ -2,13 +2,38 @@ import { db } from '../db.js';
 import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 
 class CategoryController {
+	async getCategories(req, res) {
+		try {
+			validateAuthToken(req);
+
+			const categoriesResult = await db.query('SELECT * FROM categories');
+			const categories = categoriesResult.rows;
+
+			const categoriesByType = {
+				cities: [],
+				careerGuidance: [],
+				weekends: [],
+			};
+
+			categories.forEach(category => {
+				if (categoriesByType[category.type]) {
+					categoriesByType[category.type].push(category);
+				}
+			});
+
+			res.json(categoriesByType);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
 	async createNewCategory(req, res) {
 		try {
-			validateAuthToken(req, res);
+			validateAuthToken(req);
 
-			const { name } = req.body;
+			const { name, type } = req.body;
 
-			if (!name) {
+			if (!name || !type) {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}
 
@@ -16,9 +41,9 @@ class CategoryController {
 
 			const newCategoryResult = await db.query(
 				`INSERT INTO categories 
-				  (name,  "imgSrc") 
-				 	VALUES ($1, $2)`,
-				[name, imageUrl]
+				  (name,  "imgSrc", type) 
+				 	VALUES ($1, $2, $3)`,
+				[name, imageUrl, type]
 			);
 
 			const newCategory = newCategoryResult.rows[0];

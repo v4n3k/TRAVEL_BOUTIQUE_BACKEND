@@ -29,16 +29,22 @@ export const getImageUrl = (req, res) => {
 	}
 };
 
-export const validateAuthToken = (req, res) => {
-	const token = req.cookies.authToken;
+export const validateAuthToken = (req) => {
+	try {
+		const token = req.cookies.authToken;
 
-	if (!token) {
-		return res.status(401).json({ error: 'Authentication required' });
-	}
-
-	jwt.verify(token, getDotEnvVar("JWT_SECRET"), (err) => {
-		if (err) {
-			return res.status(403).json({ error: 'Invalid token' });
+		if (!token) {
+			throw new Error('Authentication required');
 		}
-	});
+
+		jwt.verify(token, getDotEnvVar('JWT_SECRET'), (err) => {
+			if (err) {
+				throw new Error('Invalid token');
+			}
+		});
+
+		return true;
+	} catch (err) {
+		throw err;
+	}
 };
