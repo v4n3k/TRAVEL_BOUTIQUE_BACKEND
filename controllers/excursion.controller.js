@@ -111,6 +111,56 @@ class ExcursionController {
 		}
 	}
 
+	async getExcursionsBySearch(req, res) {
+		try {
+			validateAuthToken(req);
+
+			const { searchQuery } = req.body;
+
+			if (!searchQuery) {
+				return res.status(400).json({ error: 'Missing required fields' });
+			}
+
+			const excursionsResult = await db.query('SELECT * FROM excursions');
+			const excursions = excursionsResult.rows;
+
+			if (!excursions || excursions.length === 0) {
+				return res.status(404).json({ error: 'No excursions found' });
+			}
+
+			const excursionsWithEvents = await Promise.all(
+				excursions.map(async (excursion) => {
+					const excursionEventsResult = await db.query(
+						`SELECT
+						 *,
+						 TO_CHAR(time, 'HH24:MI') AS time
+						 FROM
+						 "excursionEvents"
+						 WHERE
+						 "excursionId" = $1`,
+						[excursion.id]
+					);
+					excursion.excursionEvents = excursionEventsResult.rows;
+					return excursion;
+				})
+			);
+
+			const filteredExcursions = excursionsWithEvents.filter((excursion) => {
+				return excursion.name.toLowerCase().includes(searchQuery.toLowerCase());
+			});
+
+			if (!filteredExcursions || filteredExcursions.length === 0) {
+				return res
+					.status(404)
+					.json({ error: 'No excursions found for this search query' });
+			}
+
+			res.json(filteredExcursions);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
 	async createNewExcursion(req, res) {
 		try {
 			validateAuthToken(req);

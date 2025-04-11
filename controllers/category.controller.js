@@ -51,7 +51,9 @@ class CategoryController {
 				return res.status(404).json({ error: 'No categories found for this type' });
 			}
 
-			const categories = categoriesByType.filter(category => category.name.toLowerCase().includes(searchQuery.toLowerCase()));
+			const categories = categoriesByType.filter(category =>
+				category.name.toLowerCase().includes(searchQuery.toLowerCase())
+			);
 
 			if (!categories || categories.length === 0) {
 				return res.status(404).json({ error: 'No categories found for this search query' });
