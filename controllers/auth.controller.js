@@ -69,7 +69,7 @@ class AuthController {
         maxAge: 60 * 60 * 1000 * 24 * 7, // 7 days
       });
 
-      res.json({ message: 'Sign in successful' });
+      res.json({ message: 'Sign in successful', login });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

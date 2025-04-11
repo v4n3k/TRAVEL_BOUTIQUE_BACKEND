@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS "users" (
   id SERIAL PRIMARY KEY,
-  login VARCHAR(255) NOT NULL,
+  login VARCHAR(255) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL
 );
 
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS "excursions" (
   "personsAmount" INT NOT NULL,
   "accompanistsAmount" INT NOT NULL, 
   price INT NOT NULL,
-  key VARCHAR(15),
+  key VARCHAR(15) UNIQUE,
   FOREIGN KEY ("categoryName") REFERENCES "categories"(name)
 );
 
