@@ -32,7 +32,4 @@ CREATE TABLE IF NOT EXISTS "excursionEvents" (
   time TIME WITHOUT TIME ZONE NOT NULL,
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
-
-
-   git commit -m "fix(dependencies): create new package-lock.json"
    
