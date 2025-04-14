@@ -4,6 +4,14 @@ CREATE TABLE IF NOT EXISTS "users" (
   password VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS "categories" (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) UNIQUE NOT NULL,
+  "imgSrc" VARCHAR(255) NOT NULL,
+  type VARCHAR(63) NOT NULL
+);
+
+
 CREATE TABLE IF NOT EXISTS "excursions" (
   id SERIAL PRIMARY KEY,
   "imgSrc" VARCHAR(255) NOT NULL,
@@ -25,10 +33,6 @@ CREATE TABLE IF NOT EXISTS "excursionEvents" (
   FOREIGN KEY ("excursionId") REFERENCES "excursions" (id)
 );
 
-CREATE TABLE IF NOT EXISTS "categories" (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) UNIQUE NOT NULL,
-  "imgSrc" VARCHAR(255) NOT NULL,
-  type VARCHAR(63) NOT NULL
-);
 
+   git commit -m "fix(dependencies): create new package-lock.json"
+   

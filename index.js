@@ -26,7 +26,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(cookieParse());
 app.use(cors({
-	origin: isDev ? 'http://localhost:5173' : 'http://103.88.243.252',
+	origin: isDev ? 'http://localhost:5173' : 'http://103.88.243.252:5173',
 	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
 	allowedHeaders: [
 		'Content-Type',
