@@ -7,6 +7,7 @@ import { getDotEnvVar, validateAuthToken } from '../utils/utils.js';
 dotenvConfig();
 
 const JWT_SECRET = getDotEnvVar("JWT_SECRET");
+const isDev = getDotEnvVar('NODE_ENV') === 'dev';
 
 class AuthController {
   async signUp(req, res) {
@@ -65,7 +66,7 @@ class AuthController {
       res.cookie('authToken', token, {
         httpOnly: true,
         secure: true,
-        sameSite: 'None',
+        sameSite: isDev ? 'Strict' : 'None',
         maxAge: 60 * 60 * 1000 * 24 * 7, // 7 days
       });
 
@@ -82,7 +83,7 @@ class AuthController {
       res.cookie('authToken', '', {
         httpOnly: true,
         secure: true,
-        sameSite: 'None',
+        sameSite: isDev ? 'Strict' : 'None',
         expires: new Date(0),
       });
 
