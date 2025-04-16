@@ -4,8 +4,6 @@ import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 class CategoryController {
 	async getCategories(req, res) {
 		try {
-			validateAuthToken(req);
-
 			const categoriesResult = await db.query('SELECT * FROM categories');
 			const categories = categoriesResult.rows;
 

@@ -66,7 +66,7 @@ class AuthController {
       res.cookie('authToken', token, {
         httpOnly: true,
         secure: true,
-        sameSite: isDev ? 'Strict' : 'None',
+        sameSite: isDev ? 'None' : 'Lax',
         maxAge: 60 * 60 * 1000 * 24 * 7, // 7 days
       });
 
@@ -83,7 +83,7 @@ class AuthController {
       res.cookie('authToken', '', {
         httpOnly: true,
         secure: true,
-        sameSite: isDev ? 'Strict' : 'None',
+        sameSite: isDev ? 'None' : 'Lax',
         expires: new Date(0),
       });
 
