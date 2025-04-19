@@ -7,15 +7,20 @@ import { getDotEnvVar, validateAuthToken } from '../utils/utils.js';
 dotenvConfig();
 
 const JWT_SECRET = getDotEnvVar("JWT_SECRET");
+const SIGN_UP_SECRET = getDotEnvVar("SIGN_UP_SECRET");
 const isDev = getDotEnvVar('NODE_ENV') === 'dev';
 
 class AuthController {
   async signUp(req, res) {
     try {
-      const { login, password } = req.body;
+      const { login, password, signUpSecret } = req.body;
 
-      if (!login || !password) {
-        return res.status(400).json({ error: 'Login and password are required' });
+      if (!login || !password || !signUpSecret) {
+        return res.status(400).json({ error: 'Login, password and secret key are required' });
+      }
+
+      if (signUpSecret !== SIGN_UP_SECRET) {
+        return res.status(401).json({ error: 'Invalid secret key' });
       }
 
       const existingUser = await db.query('SELECT * FROM users WHERE login = $1', [login]);
@@ -72,7 +77,7 @@ class AuthController {
 
       res.json({ message: 'Sign in successful', login });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: err, errorMessage: err.message });
     }
   }
 
