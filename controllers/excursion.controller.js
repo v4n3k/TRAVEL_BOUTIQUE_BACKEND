@@ -161,6 +161,30 @@ class ExcursionController {
 		}
 	}
 
+	async getAllExcursionsCities(req, res) {
+		try {
+			const citiesResult = await db.query(
+				`SELECT name as city from categories WHERE type = $1`,
+				['cities']
+			);
+
+			const cities = citiesResult.rows.map((row, index) => {
+				return {
+					id: index + 1,
+					name: row.city,
+				};
+			});
+
+			if (!cities || cities.length === 0) {
+				return res.status(404).json({ error: 'No cities found' });
+			}
+
+			res.json([...cities, ...cities]);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
 	async createNewExcursion(req, res) {
 		try {
 			validateAuthToken(req);
@@ -182,6 +206,9 @@ class ExcursionController {
 			const persons = personsAmount === undefined || personsAmount === "undefined" ? null : parseInt(personsAmount, 10);
 			const accompanists = accompanistsAmount === undefined || accompanistsAmount === "undefined" ? null : parseInt(accompanistsAmount, 10);
 			const excursionPrice = price === undefined || price === "undefined" ? null : parseInt(price, 10);
+			const excursionInfo = info === undefined || info === "undefined" ? null : info;
+
+			console.log(info);
 
 			JSON.parse(excursionEvents).forEach((excursionEvent) => {
 				if (!excursionEvent.name || !excursionEvent.time) {
@@ -196,7 +223,7 @@ class ExcursionController {
 				 (name, "categoryName", "imgSrc", info, "personsAmount", "accompanistsAmount", price) 
 				 VALUES ($1, $2, $3, $4, $5, $6, $7) 
 				RETURNING *`,
-				[name, categoryName, imageUrl, info || '', persons, accompanists, excursionPrice]
+				[name, categoryName, imageUrl, excursionInfo, persons, accompanists, excursionPrice]
 			);
 
 			const parsedExcursionEvents = JSON.parse(excursionEvents);
