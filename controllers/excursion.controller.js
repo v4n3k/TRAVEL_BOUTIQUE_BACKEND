@@ -175,9 +175,13 @@ class ExcursionController {
 				excursionEvents
 			} = req.body;
 
-			if (!name || !categoryName || !info) {
+			if (!name || !categoryName) {
 				return res.status(400).json({ error: 'Missing required fields' });
 			}
+
+			const persons = personsAmount === undefined || personsAmount === "undefined" ? null : parseInt(personsAmount, 10);
+			const accompanists = accompanistsAmount === undefined || accompanistsAmount === "undefined" ? null : parseInt(accompanistsAmount, 10);
+			const excursionPrice = price === undefined || price === "undefined" ? null : parseInt(price, 10);
 
 			JSON.parse(excursionEvents).forEach((excursionEvent) => {
 				if (!excursionEvent.name || !excursionEvent.time) {
@@ -192,7 +196,7 @@ class ExcursionController {
 				 (name, "categoryName", "imgSrc", info, "personsAmount", "accompanistsAmount", price) 
 				 VALUES ($1, $2, $3, $4, $5, $6, $7) 
 				RETURNING *`,
-				[name, categoryName, imageUrl, info, personsAmount, accompanistsAmount, price]
+				[name, categoryName, imageUrl, info || '', persons, accompanists, excursionPrice]
 			);
 
 			const parsedExcursionEvents = JSON.parse(excursionEvents);
@@ -223,6 +227,7 @@ class ExcursionController {
 			res.json(newExcursion);
 		} catch (err) {
 			res.status(500).json({ error: err.message });
+			console.log(err);
 		}
 	};
 

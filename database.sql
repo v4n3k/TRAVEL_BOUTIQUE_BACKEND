@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS "excursions" (
   "imgSrc" VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
   "categoryName" VARCHAR(255) NOT NULL,
-  info VARCHAR(1023) NOT NULL,
-  "personsAmount" INT NOT NULL,
-  "accompanistsAmount" INT NOT NULL, 
-  price INT NOT NULL,
+  info VARCHAR(1023),
+  "personsAmount" INT,
+  "accompanistsAmount" INT, 
+  price INT,
   key VARCHAR(15) UNIQUE,
   FOREIGN KEY ("categoryName") REFERENCES "categories"(name)
 );
