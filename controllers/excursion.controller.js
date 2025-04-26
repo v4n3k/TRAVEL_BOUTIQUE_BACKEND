@@ -181,6 +181,49 @@ class ExcursionController {
 		}
 	}
 
+	async getExcursionsBySearchWithCities(req, res) {
+		try {
+			const { searchQuery } = req.body;
+
+			if (typeof searchQuery !== 'string') {
+				return res.status(400).json({ error: 'Search query must be a string' });
+			}
+
+			const excursionsWithCitiesResult = await db.query(`
+				SELECT
+					e.id,
+					e.name,
+					e.price,
+					e."personsAmount",
+					e."accompanistsAmount",
+					e."imgSrc",
+					e.key,
+					CASE
+						WHEN c.name IS NOT NULL THEN c.name
+						ELSE NULL
+					END AS city
+				FROM
+					excursions e
+				LEFT JOIN
+					categories c ON e."categoryName" = c.name
+			`);
+			const excursionsWithCities = excursionsWithCitiesResult.rows;
+
+			if (!excursionsWithCities || excursionsWithCities.length === 0) {
+				return res.json(excursionsWithCities);
+			}
+
+			const filteredExcursions = excursionsWithCities.filter((excursion) => {
+				return excursion.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+					excursion.city.toLowerCase().includes(searchQuery.toLowerCase());
+			});
+
+			res.json(filteredExcursions);
+		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
 	async getAllExcursionsCities(req, res) {
 		try {
 			const citiesResult = await db.query(
