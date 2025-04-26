@@ -5,14 +5,33 @@ import { db } from '../db.js';
 import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 
 class ExcursionController {
-	async getExcursions(_, res) {
+	async getExcursionsWithCities(_, res) {
 		try {
-			const excursionsResult = await db.query('SELECT * FROM excursions');
+			const excursionsResult = await db.query(`
+				SELECT
+					e.id,
+					e."imgSrc",
+					e.name,
+					e."categoryName",
+					e.info,
+					e."personsAmount",
+					e."accompanistsAmount",
+					e.price,
+					e.key,
+					CASE
+						WHEN c.type = 'cities' THEN c.name
+						ELSE NULL
+					END AS city
+				FROM
+					excursions e
+				LEFT JOIN
+					categories c ON e."categoryName" = c.name
+			`);
 
 			const excursions = excursionsResult.rows;
 
 			if (!excursions) {
-				res.status(404).json({ error: 'Excursions not found' });
+				return res.status(404).json({ error: 'Excursions not found' });
 			}
 
 			for (const excursion of excursions) {
@@ -25,6 +44,7 @@ class ExcursionController {
 
 			res.json(excursions);
 		} catch (err) {
+			console.error(err);
 			res.status(500).json({ error: err.message });
 		}
 	}
@@ -179,7 +199,7 @@ class ExcursionController {
 				return res.status(404).json({ error: 'No cities found' });
 			}
 
-			res.json([...cities, ...cities]);
+			res.json([...cities, ...cities]); // TODO: remove duplicates after adding more data
 		} catch (err) {
 			res.status(500).json({ error: err.message });
 		}

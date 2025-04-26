@@ -3,7 +3,7 @@ import { default as ExcursionController } from '../controllers/excursion.control
 
 export const router = express.Router();
 
-router.get('/excursions', ExcursionController.getExcursions);
+router.get('/excursions', ExcursionController.getExcursionsWithCities);
 router.get('/excursion/:id', ExcursionController.getExcursionById);
 router.get('/excursions/cities', ExcursionController.getAllExcursionsCities);
 router.get('/excursions/:categoryName', ExcursionController.getExcursionsByCategoryName);
