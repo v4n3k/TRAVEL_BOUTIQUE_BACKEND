@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS "categories" (
   type VARCHAR(63) NOT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "excursions" (
   id SERIAL PRIMARY KEY,
   "imgSrc" VARCHAR(255) NOT NULL,

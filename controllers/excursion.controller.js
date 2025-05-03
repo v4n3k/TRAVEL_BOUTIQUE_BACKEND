@@ -242,8 +242,50 @@ class ExcursionController {
 				return res.status(404).json({ error: 'No cities found' });
 			}
 
-			res.json([...cities, ...cities]); // TODO: remove duplicates after adding more data
+			res.json(cities);
 		} catch (err) {
+			res.status(500).json({ error: err.message });
+		}
+	}
+
+	async getExcursionSearchTips(req, res) {
+		try {
+			const { searchQuery } = req.body;
+
+			const query = `
+				SELECT
+					e.name AS "excursionName",
+					c.name AS "cityName"
+				FROM
+					excursions e
+				JOIN
+					categories c ON e."categoryName" = c.name
+				WHERE
+					c.type = 'cities'
+			`;
+
+			const namesAndCitiesResult = await db.query(query);
+			const namesAndCities = namesAndCitiesResult.rows;
+
+			const searchTips = namesAndCities
+				.filter(item => {
+					const excursionName = item.excursionName.toLowerCase();
+					const cityName = item.cityName.toLowerCase();
+					const searchTerm = searchQuery.toLowerCase();
+
+					return (
+						excursionName.includes(searchTerm) ||
+						cityName.includes(searchTerm)
+					);
+				})
+				.map(item => item.excursionName);
+
+
+			const uniqueSearchTips = [...new Set(searchTips)];
+
+			res.json(uniqueSearchTips);
+		} catch (err) {
+			console.error(err);
 			res.status(500).json({ error: err.message });
 		}
 	}

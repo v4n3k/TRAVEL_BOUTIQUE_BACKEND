@@ -37,7 +37,7 @@ class AuthController {
 
       const newUser = newUserResult.rows[0];
 
-      res.status(200).json({ message: 'User created successfully', user: newUser });
+      res.json({ message: 'User created successfully', user: newUser });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -70,7 +70,7 @@ class AuthController {
 
       res.cookie('authToken', token, {
         httpOnly: true,
-        secure: true,
+        secure: isDev ? true : false,
         sameSite: isDev ? 'None' : 'Lax',
         maxAge: 60 * 60 * 1000 * 24 * 7, // 7 days
       });
@@ -87,7 +87,7 @@ class AuthController {
 
       res.cookie('authToken', '', {
         httpOnly: true,
-        secure: true,
+        secure: isDev ? true : false,
         sameSite: isDev ? 'None' : 'Lax',
         expires: new Date(0),
       });
