@@ -278,7 +278,7 @@ class ExcursionController {
 						cityName.includes(searchTerm)
 					);
 				})
-				.map(item => item.excursionName);
+				.map((item, index) => ({ id: index + 1, name: item.excursionName }));
 
 
 			const uniqueSearchTips = [...new Set(searchTips)];
