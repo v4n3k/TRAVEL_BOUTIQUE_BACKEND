@@ -105,7 +105,7 @@ class ExcursionController {
 			if (!excursions || excursions.length === 0) {
 				return res
 					.status(404)
-					.json({ error: 'No excursions found for this category' });
+					.json(excursions);
 			}
 
 			const excursionsWithEvents = await Promise.all(
