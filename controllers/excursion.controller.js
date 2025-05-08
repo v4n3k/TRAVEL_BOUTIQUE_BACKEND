@@ -102,12 +102,6 @@ class ExcursionController {
 
 			const excursions = excursionsResult.rows;
 
-			if (!excursions || excursions.length === 0) {
-				return res
-					.status(404)
-					.json(excursions);
-			}
-
 			const excursionsWithEvents = await Promise.all(
 				excursions.map(async (excursion) => {
 					const excursionEventsResult = await db.query(
