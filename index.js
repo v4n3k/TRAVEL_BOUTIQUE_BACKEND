@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { router as authRouter } from './routes/auth.routes.js';
 import { router as categoryRouter } from './routes/category.routes.js';
 import { router as excursionRouter } from './routes/excursion.routes.js';
+import { router as feedbackRouter } from './routes/feedback.routes.js';
 import { getDotEnvVar } from './utils/utils.js';
 
 dotenvConfig();
@@ -73,6 +74,7 @@ app.use('/api/category', upload.any());
 app.use('/api', authRouter);
 app.use('/api', excursionRouter);
 app.use('/api', categoryRouter);
+app.use('/api', feedbackRouter);
 
 const start = (PORT) => {
 	console.log(`Server is running on port ${PORT} in ${getDotEnvVar('NODE_ENV')} mode`);
