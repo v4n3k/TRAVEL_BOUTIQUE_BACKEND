@@ -307,8 +307,6 @@ class ExcursionController {
 			const excursionPrice = price === undefined || price === "undefined" ? null : parseInt(price, 10);
 			const excursionInfo = info === undefined || info === "undefined" ? null : info;
 
-			console.log(info);
-
 			JSON.parse(excursionEvents).forEach((excursionEvent) => {
 				if (!excursionEvent.name || !excursionEvent.time) {
 					return res.status(400).json({ error: 'Invalid time for excursion event' });
@@ -353,7 +351,6 @@ class ExcursionController {
 			res.json(newExcursion);
 		} catch (err) {
 			res.status(500).json({ error: err.message });
-			console.log(err);
 		}
 	};
 
@@ -542,7 +539,6 @@ class ExcursionController {
 				if (fs.existsSync(imagePath)) {
 					try {
 						fs.unlinkSync(imagePath);
-						console.log(`Deleted image: ${imagePath}`);
 					} catch (unlinkError) {
 						console.error(`Error deleting image: ${imagePath}`, unlinkError);
 					}

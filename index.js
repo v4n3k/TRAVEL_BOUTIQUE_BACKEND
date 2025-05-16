@@ -18,8 +18,10 @@ dotenvConfig();
 
 const cookieParse = pkg;
 
+const FRONTEND_URL = getDotEnvVar("FRONTEND_URL");
+const LOCAL_FRONTEND_URL = getDotEnvVar("LOCAL_FRONTEND_URL");
 const PORT = getDotEnvVar("BACKEND_PORT");
-const isDev = getDotEnvVar('NODE_ENV') === 'dev';
+const IS_DEV = getDotEnvVar('NODE_ENV') === 'dev';
 
 const app = express();
 
@@ -27,7 +29,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(cookieParse());
 app.use(cors({
-	origin: isDev ? 'http://localhost:5173' : 'http://103.88.243.252:5173',
+	origin: IS_DEV ? LOCAL_FRONTEND_URL : FRONTEND_URL,
 	methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
 	allowedHeaders: [
 		'Content-Type',
