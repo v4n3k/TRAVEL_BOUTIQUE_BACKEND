@@ -47,6 +47,12 @@ class AuthController {
     try {
       const { login, password } = req.body;
 
+      const adminDoesNotExistError = {
+        error: `Admin with login ${login} does not exist`,
+        errorRu: `Администратор с логином ${login} не существует`
+      };
+      const wrongPasswordError = { error: 'Wrong password', errorRu: 'Неправильный пароль' };
+
       if (!login || !password) {
         return res.status(400).json({ error: 'Login and password are required' });
       }
@@ -55,13 +61,13 @@ class AuthController {
       const user = userResult.rows[0];
 
       if (!user) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        return res.status(401).json(adminDoesNotExistError);
       }
 
       const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+        return res.status(401).json(wrongPasswordError);
       }
 
       const token = jwt.sign({ id: user.id, login: user.login }, JWT_SECRET, {
