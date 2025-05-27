@@ -55,10 +55,9 @@ class PaymentController {
 
 			const payment = await YooKassa.createPayment(payload, idempotenceKey);
 
-			res.json(payment);
+			res.json({ confirmationUrl: payment.confirmation.confirmation_url });
 		} catch (err) {
 			res.status(500).json({ error: err });
-			console.log(err);
 		}
 	}
 }
