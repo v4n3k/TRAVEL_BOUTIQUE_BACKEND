@@ -18,6 +18,11 @@ class PaymentController {
 		try {
 			const { amount, excursionId, excursionKey } = req.body;
 
+			const invalidExcursionKeyError = {
+				error: 'Invalid excursion key',
+				errorRu: 'Неверный ключ экскурсии'
+			};
+
 			if (!amount) {
 				return res.status(400).json({ error: 'Missing required amount field' });
 			}
@@ -33,7 +38,7 @@ class PaymentController {
 			const excursionKeyFromDb = excursionKeyFromDbResult.rows[0].key;
 
 			if (excursionKey !== excursionKeyFromDb) {
-				return res.status(400).json({ error: 'Invalid excursion key' });
+				return res.status(400).json(invalidExcursionKeyError);
 			}
 
 			const payload = {
