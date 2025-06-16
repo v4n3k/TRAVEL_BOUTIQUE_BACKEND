@@ -15,6 +15,16 @@ const pool = new Pool({
   database: getDotEnvVar("DATABASE"),
 });
 
-pool.query(fs.readFileSync("database.sql", "utf-8"));
+async function initializeDatabase() {
+  try {
+    const sql = fs.readFileSync("database.sql", "utf-8");
+    console.log("Attempting to execute database.sql...");
+    await pool.query(sql);
+    console.log("Database initialized successfully!");
+  } catch (error) {
+    console.error("ERROR: Failed to initialize database:", error);
+    process.exit(1);
+  }
+}
 
-export { pool as db };
+export { pool as db, initializeDatabase };
