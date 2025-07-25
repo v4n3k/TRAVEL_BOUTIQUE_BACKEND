@@ -20,7 +20,6 @@ async function initializeDatabase() {
     const sql = fs.readFileSync("database.sql", "utf-8");
     console.log("Attempting to execute database.sql...");
     await pool.query(sql);
-    console.log("Database initialized successfully!");
   } catch (error) {
     console.error("ERROR: Failed to initialize database:", error);
     process.exit(1);

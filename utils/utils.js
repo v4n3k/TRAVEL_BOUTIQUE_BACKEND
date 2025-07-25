@@ -48,3 +48,38 @@ export const validateAuthToken = (req) => {
 		throw err;
 	}
 };
+
+export const formatPhoneForYookassa = (inputPhone) => {
+	if (!inputPhone || typeof inputPhone !== 'string') {
+		return null;
+	}
+
+	// Шаг 1: Удаляем все символы, кроме цифр и возможного плюса в начале строки.
+	// Это позволяет сохранить + если он был введен в начале.
+	let cleanedPhone = inputPhone.replace(/[^\d+]/g, '');
+
+	// Шаг 2: Обрабатываем специфичные для России префиксы (8 -> +7),
+	// если номер не начинается с плюса.
+	if (!cleanedPhone.startsWith('+')) {
+		if (cleanedPhone.startsWith('8') && cleanedPhone.length === 11) {
+			// Российский номер, начинающийся с 8, заменяем на +7
+			cleanedPhone = '+7' + cleanedPhone.substring(1);
+		} else if (cleanedPhone.length === 10) {
+			// Если 10-значный номер (без 8 или +), предполагаем российский 9xx и добавляем +7
+			// Будьте осторожны: это предположение! Если у вас международная аудитория,
+			// потребуется более сложная логика определения страны или явный ввод кода страны.
+			cleanedPhone = '+7' + cleanedPhone;
+		}
+		// Для других стран без + в начале потребуется аналогичная логика.
+		// Например, для США: if (cleanedPhone.length === 10) { cleanedPhone = '+1' + cleanedPhone; }
+	}
+
+	// Шаг 3: Проверяем финальный формат с помощью регулярного выражения E.164
+	const yookassaPhoneRegex = /^\+\d{7,15}$/;
+
+	if (yookassaPhoneRegex.test(cleanedPhone)) {
+		return cleanedPhone;
+	} else {
+		return null; // Номер не соответствует формату E.164
+	}
+};

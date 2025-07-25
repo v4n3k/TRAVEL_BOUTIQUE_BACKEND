@@ -53,6 +53,8 @@ const startServer = async () => {
 		await fs.mkdir(imageStorageDirectory, { recursive: true });
 		console.log('Uploads directory ready.');
 
+		app.set('trust proxy', true);
+
 		app.use(helmet());
 		app.use(express.json());
 		app.use(cookieParse());
