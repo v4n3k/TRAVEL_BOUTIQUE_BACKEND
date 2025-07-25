@@ -101,8 +101,8 @@ class PaymentController {
 							value: amount.toFixed(2),
 							currency: 'RUB'
 						},
-						vat_code: '1', // 0% of VAT (НДС)
-						payment_mode: 'partial_prepayment',
+						vat_code: '4', // 0% of VAT (НДС)
+						payment_mode: 'advance',
 						payment_subject: 'service'
 					}
 				],
