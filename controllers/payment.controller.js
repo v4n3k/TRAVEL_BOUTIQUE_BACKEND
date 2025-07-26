@@ -95,14 +95,14 @@ class PaymentController {
 				},
 				items: [
 					{
-						description: `Оплата экскурсии ID: ${excursionId}`,
+						description: `Оплата экскурсии`,
 						quantity: '1.00', // Amount of the item
 						amount: {
 							value: amount.toFixed(2),
 							currency: 'RUB'
 						},
-						vat_code: '4', // 0% of VAT (НДС)
-						payment_mode: 'advance',
+						vat_code: '1', // 0% of VAT (НДС)
+						payment_mode: 'full_prepayment',
 						payment_subject: 'service'
 					}
 				],
@@ -121,7 +121,7 @@ class PaymentController {
 					return_url: IS_DEV ? LOCAL_FRONTEND_URL : FRONTEND_URL
 				},
 				capture: true,
-				description: `Оплата экскурсии ID: ${excursionId}`,
+				description: `Оплата экскурсии`,
 				receipt
 			};
 
