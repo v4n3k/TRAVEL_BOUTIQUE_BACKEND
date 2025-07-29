@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "excursions" (
   "accompanistsAmount" INT, 
   price INT,
   key VARCHAR(15) UNIQUE,
-  FOREIGN KEY ("categoryName") REFERENCES "categories"(name)
+  FOREIGN KEY ("categoryName") REFERENCES "categories"(name) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "excursionEvents" (

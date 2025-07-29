@@ -208,8 +208,8 @@ class ExcursionController {
 			}
 
 			const filteredExcursions = excursionsWithCities.filter((excursion) => {
-				return excursion.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					excursion.city.toLowerCase().includes(searchQuery.toLowerCase());
+				return excursion.name?.toLowerCase().includes(searchQuery?.toLowerCase()) ||
+					excursion.city?.toLowerCase().includes(searchQuery?.toLowerCase());
 			});
 
 			res.json(filteredExcursions);
@@ -217,6 +217,7 @@ class ExcursionController {
 			res.status(500).json({ error: err.message });
 		}
 	}
+
 
 	async getAllExcursionsCities(req, res) {
 		try {
@@ -254,9 +255,7 @@ class ExcursionController {
 					excursions e
 				JOIN
 					categories c ON e."categoryName" = c.name
-				WHERE
-					c.type = 'cities'
-			`;
+   		`;
 
 			const namesAndCitiesResult = await db.query(query);
 			const namesAndCities = namesAndCitiesResult.rows;
