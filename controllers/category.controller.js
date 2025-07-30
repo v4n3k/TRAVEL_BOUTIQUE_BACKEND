@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { db } from '../db.js';
 import { getImageUrl, validateAuthToken } from '../utils/utils.js';
 
